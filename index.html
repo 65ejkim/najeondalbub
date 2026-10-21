@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>나를 살리는 코디 랩</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFF9F5;
+      --card: #FFFFFF;
+      --primary: #FF7E67;
+      --primary-light: #FFE6E1;
+      --secondary: #5C7AEA;
+      --secondary-light: #E8EDFF;
+      --green: #2ECC71;
+      --green-light: #E8F8F0;
+      --text: #2D3436;
+      --muted: #636E72;
+      --border: #EAE2DC;
+      --shadow: 0 8px 24px rgba(149, 130, 120, 0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+    h1, h2, h3, .jua { font-family: 'Jua', sans-serif; font-weight: 400; }
+
+    /* Top Navigation */
+    header {
+      background: var(--card);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand { font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .step-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+    .step-btn {
+      padding: 7px 13px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: #FAF6F3;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .step-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Container & Layout */
+    .container { max-width: 1180px; margin: 20px auto; padding: 0 16px; }
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .workspace { grid-template-columns: 1fr; }
+      .stage-panel { position: static !important; }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .stage-panel {
+      position: sticky;
+      top: 76px;
+      text-align: center;
+      background: linear-gradient(180deg, #FFFDFB 0%, #F7EFEA 100%);
+    }
+    .avatar-wrap {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 2px dashed #E2D5CE;
+      padding: 10px;
+    }
+
+    /* Controls & Chips */
+    .section-title { font-size: 1.25rem; margin-bottom: 6px; color: var(--text); }
+    .helper-banner {
+      background: var(--primary-light);
+      color: #C04832;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .control-group { margin-bottom: 18px; }
+    .control-label { font-weight: 700; font-size: 0.92rem; margin-bottom: 8px; display: block; color: #444; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 9px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #FFF;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .chip:hover { border-color: var(--primary); }
+    .chip.selected {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Color Swatches */
+    .swatch-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2.5px solid #E0E0E0;
+      cursor: pointer;
+      transition: transform 0.15s;
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.08); }
+    .swatch.selected {
+      border-color: #222;
+      transform: scale(1.12);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .swatch.my-saved::after {
+      content: '★';
+      position: absolute;
+      top: -6px;
+      right: -4px;
+      background: #FFD43B;
+      color: #222;
+      font-size: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 22px;
+      border-radius: 14px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-primary:hover { background: #F06850; }
+    .btn-secondary { background: var(--secondary); color: #FFF; }
+    .btn-outline { background: #FFF; border: 2px solid var(--border); color: var(--text); }
+    .btn-row { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; flex-wrap: wrap; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--border); margin-bottom: 16px; overflow-x: auto; padding-bottom: 6px; }
+    .tab-btn {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: none;
+      background: #F4EFEA;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--secondary); color: #FFF; }
+
+    /* Meters */
+    .meter-box {
+      background: #FAF7F4;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 16px;
+      border: 1px solid var(--border);
+    }
+    .meter-row { margin-bottom: 10px; }
+    .meter-header { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; }
+    .meter-track {
+      height: 12px;
+      background: #E6E0DC;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      background: var(--secondary);
+      border-radius: 8px;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    .meter-fill.goal-match { background: var(--green); }
+    .goal-badge {
+      display: inline-block;
+      background: var(--green-light);
+      color: #1B8045;
+      font-size: 0.72rem;
+      padding: 1px 6px;
+      border-radius: 6px;
+      margin-left: 6px;
+    }
+
+    .reason-list {
+      margin-top: 12px;
+      background: #FFF;
+      border-radius: 10px;
+      padding: 10px 14px;
+      border-left: 4px solid var(--primary);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    .reason-list li { margin: 4px 0; list-style-position: inside; }
+
+    /* Compare Grid */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+
+    /* Intro Screen */
+    .intro-hero {
+      text-align: center;
+      max-width: 720px;
+      margin: 30px auto;
+      padding: 36px 24px;
+    }
+    .intro-quote {
+      font-size: 1.35rem;
+      color: var(--primary);
+      background: var(--primary-light);
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 30px;
+      margin: 14px 0 24px;
+    }
+    .step-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+    .step-card {
+      background: #FAF6F2;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+    .step-card b { color: var(--secondary); display: block; margin-bottom: 4px; }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+    .check-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #F1F3F5;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+    .check-item.pass { background: var(--green-light); color: #196F3D; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand jua">✨ 나를 살리는 코디 랩</div>
+  <nav class="step-nav" id="stepNav" style="display:none;">
+    <button class="step-btn active" onclick="goStep(2)">① 나의 아바타</button>
+    <button class="step-btn" onclick="goStep(3)">② 색 대어 보기</button>
+    <button class="step-btn" onclick="goStep(4)">③ 목표 & 코디</button>
+    <button class="step-btn" onclick="goStep(5)">④ A/B 비교</button>
+    <button class="step-btn" onclick="goStep(6)">⑤ 코디 카드</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- ① 시작 화면 -->
+  <section id="screen-1" class="screen active">
+    <div class="card intro-hero">
+      <p style="font-weight:700; color:var(--secondary); margin-bottom:6px;">중학교 가정 [9기가01-04] 의복과 자기표현</p>
+      <h1 style="font-size:2.4rem; margin-bottom:6px;">나를 살리는 코디 랩</h1>
+      <div class="intro-quote jua">"몸을 고치는 게 아니라, 옷의 효과를 알고 나를 표현하는 것!"</div>
+      <p style="color:var(--muted); margin-bottom:24px;">
+        사람마다 얼굴형, 피부톤, 체형은 모두 다르고 그 자체로 자연스럽습니다.<br>
+        의복의 <b>선·색·무늬·재질·실루엣</b>이 만드는 착시 효과를 실험하며 내가 원하는 분위기를 직접 연출해 볼까요?
+      </p>
+      <div class="step-cards">
+        <div class="step-card"><b>1단계. 아바타 만들기</b>나와 비슷하거나 꾸미고 싶은 캐릭터를 설정해요.</div>
+        <div class="step-card"><b>2단계. 색 대어 보기</b>다양한 색 천을 대어 보며 얼굴 인상이 어떻게 달라지는지 관찰해요.</div>
+        <div class="step-card"><b>3단계. 목표 & 코디</b>원하는 연출 목표를 고르고 옷과 무늬, 색을 조합해 실험해요.</div>
+        <div class="step-card"><b>4단계. 비교 & 코디 카드</b>A/B 코디를 비교하고 나만의 코디 카드를 이미지로 저장해요.</div>
+      </div>
+      <button class="btn btn-primary" style="font-size:1.15rem; padding:15px 36px;" onclick="goStep(2)">실험 시작하기 →</button>
+    </div>
+  </section>
+
+  <!-- ② 나의 아바타 설정 -->
+  <section id="screen-2" class="screen">
+    <div class="workspace">
+      <div class="card stage-panel">
+        <h3 style="margin-bottom:8px;">나의 아바타 미리보기</h3>
+        <div class="avatar-wrap" id="avatar-stage-2"></div>
+        <p style="font-size:0.83rem; color:var(--muted); margin-top:10px;">선택하는 즉시 아바타의 모습이 바뀝니다.</p>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">① 나의 아바타 설정</h2>
+        <div class="helper-banner">💡 정답은 없어요. 나와 비슷하게, 또는 원하는 캐릭터로 자유롭게 만들어도 좋아요!</div>
+
+        <div class="control-group">
+          <span class="control-label">얼굴형</span>
+          <div class="chip-row" id="faceShapeOpts"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">피부 톤 (밝기 6단계 & 노란 기 / 붉은 기)</span>
+          <div class="chip-row" style="margin-bottom:10px;" id="skinUndertoneOpts"></div>
+          <div class="swatch-row" id="skinLevelOpts"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">머리 모양 & 머리 색</span>
+          <div class="chip-row" style="margin-bottom:10px;" id="hairStyleOpts"></div>
+          <div class="swatch-row" id="hairColorOpts"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">키 느낌</span>
+          <div class="chip-row" id="heightOpts"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">어깨 너비</span>
+          <div class="chip-row" id="shoulderOpts"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">체형 실루엣</span>
+          <div class="chip-row" id="bodyTypeOpts"></div>
+        </div>
+
+        <div class="btn-row">
+          <span></span>
+          <button class="btn btn-primary" onclick="goStep(3)">다음: 색 대어 보기 →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 색 대어 보기 (퍼스널컬러 체험) -->
+  <section id="screen-3" class="screen">
+    <div class="workspace">
+      <div class="card stage-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>색 천(드레이프) 체험</h3>
+          <button class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem;" onclick="toggleDrapeCompare()" id="drapeCompareBtn">나란히 비교하기</button>
+        </div>
+
+        <!-- 단일 드레이프 모드 -->
+        <div id="drapeSingleView">
+          <div class="avatar-wrap" id="avatar-stage-3"></div>
+          <div style="margin-top:12px; padding:12px; background:#FFF; border-radius:12px; border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:1rem;" id="drapeColorName">코럴</div>
+            <div style="font-size:0.88rem; color:var(--muted); margin-top:2px;" id="drapeColorDesc">생기 있고 따뜻한 인상</div>
+            <button class="btn btn-secondary" style="margin-top:8px; padding:7px 14px; font-size:0.85rem;" onclick="toggleMyColor()">⭐ '나의 색'으로 저장/해제 (<span id="myColorCount">0</span>/3)</button>
+          </div>
+        </div>
+
+        <!-- 좌우 비교 모드 -->
+        <div id="drapeCompareView" style="display:none;">
+          <p style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">비교할 슬롯(왼쪽/오른쪽)을 누른 뒤 오른쪽 색상표를 클릭하세요.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div onclick="setActiveCompareSlot('L')" id="compSlotL" style="border:2px solid var(--primary); border-radius:12px; padding:6px; background:#fff; cursor:pointer;">
+              <span style="font-size:0.78rem; font-weight:700;">왼쪽 색</span>
+              <div id="avatar-drape-L"></div>
+              <div id="compNameL" style="font-size:0.8rem; font-weight:700;"></div>
+            </div>
+            <div onclick="setActiveCompareSlot('R')" id="compSlotR" style="border:2px solid var(--border); border-radius:12px; padding:6px; background:#fff; cursor:pointer;">
+              <span style="font-size:0.78rem; font-weight:700;">오른쪽 색</span>
+              <div id="avatar-drape-R"></div>
+              <div id="compNameR" style="font-size:0.8rem; font-weight:700;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">② 색 대어 보기 (인상 차이 관찰하기)</h2>
+        <div class="helper-banner">
+          🎨 사람마다 어울리는 색은 하나로 정해져 있지 않아요. 얼굴 아래에 여러 색을 대어 보며 <b>내 얼굴이 더 환해 보이거나 내가 표현하고 싶은 분위기</b>의 색을 최대 3개 골라 보세요!
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">☀️ 따뜻한 느낌의 색 (난색 계열 8종)</span>
+          <div class="swatch-row" id="warmDrapeList"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">❄️ 시원하고 차분한 느낌의 색 (한색 계열 8종)</span>
+          <div class="swatch-row" id="coolDrapeList"></div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">⚪ 깔끔한 무채색 (4종)</span>
+          <div class="swatch-row" id="neutralDrapeList"></div>
+        </div>
+
+        <div class="control-group" style="background:#FAF6F2; padding:14px; border-radius:14px;">
+          <span class="control-label">⭐ 내가 고른 '나의 색' (최대 3개 - 코디 색상표 맨 앞에 표시됩니다)</span>
+          <div class="swatch-row" id="mySavedColorsRow" style="min-height:38px;"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goStep(2)">← 아바타 수정</button>
+          <button class="btn btn-primary" onclick="goStep(4)">다음: 목표 고르고 코디하기 →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ & ⑤ & ⑥ 연출 목표 고르기 + 코디하기 + 실시간 효과 미터 -->
+  <section id="screen-4" class="screen">
+    <div class="workspace">
+      <!-- 왼쪽 아바타 + 효과 미터 -->
+      <div class="card stage-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-weight:700; font-size:0.95rem;">현재 나의 코디</span>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-outline" style="padding:5px 10px; font-size:0.78rem;" onclick="saveCoordiSlot('A')">📌 A안 저장</button>
+            <button class="btn btn-outline" style="padding:5px 10px; font-size:0.78rem;" onclick="saveCoordiSlot('B')">📌 B안 저장</button>
+          </div>
+        </div>
+
+        <div class="avatar-wrap" id="avatar-stage-4"></div>
+
+        <!-- ⑥ 실시간 효과 미터 -->
+        <div class="meter-box">
+          <div style="font-weight:700; font-size:0.9rem; margin-bottom:8px; text-align:left;">📊 실시간 착시 & 인상 효과 미터</div>
+          <div id="metersContainer"></div>
+          <ul class="reason-list" id="effectReasons"></ul>
+        </div>
+      </div>
+
+      <!-- 오른쪽 패널: 목표 + 옷 선택 -->
+      <div class="card">
+        <h2 class="section-title">③ 나의 연출 목표 고르기 (최대 2개)</h2>
+        <p style="font-size:0.86rem; color:var(--muted); margin-bottom:10px;">
+          오늘 코디로 표현하고 싶은 목표를 골라 보세요. 목표에 가까워지면 왼쪽 효과 미터가 <b style="color:var(--green);">초록색</b>으로 반짝입니다!
+        </p>
+        <div class="chip-row" id="goalOpts" style="margin-bottom:22px;"></div>
+
+        <hr style="border:none; border-top:1.5px dashed var(--border); margin:18px 0;">
+
+        <h2 class="section-title">④ 의복 디자인 요소로 코디하기</h2>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchClotheTab('top', this)">👕 상의 & 네크라인</button>
+          <button class="tab-btn" onclick="switchClotheTab('bottom', this)">👖 하의</button>
+          <button class="tab-btn" onclick="switchClotheTab('outer', this)">🧥 겉옷</button>
+          <button class="tab-btn" onclick="switchClotheTab('shoes', this)">👟 신발</button>
+        </div>
+
+        <!-- 상의 탭 -->
+        <div id="tab-top" class="clothe-tab">
+          <div class="control-group">
+            <span class="control-label">상의 종류 (실루엣·선·무늬·재질)</span>
+            <div class="chip-row" id="topOpts"></div>
+          </div>
+          <div class="control-group" id="necklineGroup">
+            <span class="control-label">네크라인 (목선 모양에 따른 얼굴형·목 길이 착시)</span>
+            <div class="chip-row" id="necklineOpts"></div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">상의 색상 (★나의 색 + 기본 14색)</span>
+            <div class="swatch-row" id="topColorOpts"></div>
+          </div>
+        </div>
+
+        <!-- 하의 탭 -->
+        <div id="tab-bottom" class="clothe-tab" style="display:none;">
+          <div class="control-group">
+            <span class="control-label">하의 종류 (바지 통·길이·치마 실루엣)</span>
+            <div class="chip-row" id="bottomOpts"></div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">하의 색상</span>
+            <div class="swatch-row" id="bottomColorOpts"></div>
+          </div>
+        </div>
+
+        <!-- 겉옷 탭 -->
+        <div id="tab-outer" class="clothe-tab" style="display:none;">
+          <div class="control-group">
+            <span class="control-label">겉옷 종류</span>
+            <div class="chip-row" id="outerOpts"></div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">겉옷 색상</span>
+            <div class="swatch-row" id="outerColorOpts"></div>
+          </div>
+        </div>
+
+        <!-- 신발 탭 -->
+        <div id="tab-shoes" class="clothe-tab" style="display:none;">
+          <div class="control-group">
+            <span class="control-label">신발 종류</span>
+            <div class="chip-row" id="shoesOpts"></div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">신발 색상</span>
+            <div class="swatch-row" id="shoesColorOpts"></div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goStep(3)">← 색 다시 고르기</button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" onclick="goStep(5)">A/B 비교 보기 →</button>
+            <button class="btn btn-primary" onclick="goStep(6)">코디 카드 완성하기 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑦ A안 / B안 비교하기 -->
+  <section id="screen-5" class="screen">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h2 class="section-title">④ 코디 A안 vs B안 나란히 비교하기</h2>
+          <p style="font-size:0.9rem; color:var(--muted);">옷의 선·색·실루엣이 바뀔 때 아바타의 비율과 인상이 어떻게 달라지는지 비교해 보세요.</p>
+        </div>
+        <button class="btn btn-outline" onclick="goStep(4)">← 코디 수정하러 가기</button>
+      </div>
+
+      <div class="compare-grid">
+        <div class="card" style="background:#FAF7F4; text-align:center;">
+          <h3 style="color:var(--primary); margin-bottom:8px;">🅰️ A안 코디</h3>
+          <div class="avatar-wrap" id="avatar-compare-A"></div>
+          <div id="desc-compare-A" style="font-size:0.85rem; margin:10px 0; font-weight:700;"></div>
+          <div id="meters-compare-A" class="meter-box"></div>
+          <button class="btn btn-outline" style="margin-top:10px; font-size:0.85rem;" onclick="loadCoordiSlot('A')">이 코디 불러오기</button>
+        </div>
+
+        <div class="card" style="background:#FAF7F4; text-align:center;">
+          <h3 style="color:var(--secondary); margin-bottom:8px;">🅱️ B안 코디</h3>
+          <div class="avatar-wrap" id="avatar-compare-B"></div>
+          <div id="desc-compare-B" style="font-size:0.85rem; margin:10px 0; font-weight:700;"></div>
+          <div id="meters-compare-B" class="meter-box"></div>
+          <button class="btn btn-outline" style="margin-top:10px; font-size:0.85rem;" onclick="loadCoordiSlot('B')">이 코디 불러오기</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(4)">← 코디 화면으로</button>
+        <button class="btn btn-primary" onclick="goStep(6)">다음: 나의 코디 카드 만들기 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑧ 나의 코디 설명과 카드 -->
+  <section id="screen-6" class="screen">
+    <div class="workspace">
+      <div class="card">
+        <h2 class="section-title">⑤ 나의 코디 설명 작성하기</h2>
+        <div class="helper-banner">
+          ✍️ 내가 고른 <b>연출 목표</b>를 이루기 위해 어떤 <b>의복 디자인 요소(선, 색, 무늬, 재질, 실루엣)</b>를 활용했는지 적어 보세요!
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">이름 또는 닉네임</label>
+          <input type="text" id="studentNameInput" placeholder="예: 1학년 3반 김가정" oninput="updateCardPreview()" />
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">나의 코디 의도와 착시 효과 설명</label>
+          <textarea id="coordiEssayInput" rows="4" placeholder="예: 다리가 길어 보이게 하려고 크롭 상의와 아래로 퍼지는 나팔바지 실루엣을 골랐고, 상하의를 비슷한 어두운 색으로 맞춰 세로선이 이어져 보이게 연출했어요." oninput="updateCardPreview()"></textarea>
+          <div>
+            <span class="check-item" id="chkWords">✖ 디자인 요소 낱말(선·색·무늬·재질·실루엣) 2개 이상 포함</span>
+            <span class="check-item" id="chkLength">✖ 설명 글자 수 30자 이상 (현재 0자)</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goStep(4)">← 코디 다시 다듬기</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="downloadCardPNG()">📸 코디 카드 이미지(PNG) 저장</button>
+            <button class="btn btn-outline" onclick="resetAll()">🔄 처음부터 다시 하기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 코디 카드 미리보기 -->
+      <div class="card" id="finalCardBox" style="background:linear-gradient(135deg, #FFF9F5 0%, #FFF0E8 100%); border:2px solid var(--primary);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-light); padding-bottom:10px; margin-bottom:14px;">
+          <div>
+            <span style="font-size:0.78rem; color:var(--primary); font-weight:700;">나를 살리는 코디 랩 REPORT CARD</span>
+            <h3 class="jua" style="font-size:1.5rem;" id="cardTitleName">나의 스타일 코디 카드</h3>
+          </div>
+          <div id="cardGoalBadges" style="text-align:right;"></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 200px 1fr; gap:14px; align-items:center;">
+          <div class="avatar-wrap" id="avatar-stage-6" style="background:#fff;"></div>
+          <div>
+            <div class="meter-box" id="cardMetersBox" style="margin-top:0; background:#fff;"></div>
+            <div style="background:#fff; padding:12px; border-radius:12px; margin-top:10px; border:1px solid var(--border);">
+              <div style="font-weight:700; font-size:0.85rem; color:var(--primary); margin-bottom:4px;">💬 나의 코디 설명</div>
+              <p id="cardEssayPreview" style="font-size:0.88rem; color:var(--text); min-height:48px; white-space:pre-wrap;">설명을 입력하면 이곳에 표시됩니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  /* ==============================
+     1. 데이터 사전 정의
+  ============================== */
+  const FACE_SHAPES = [
+    { id: 'round', name: '둥근형' },
+    { id: 'oval', name: '갸름한형' },
+    { id: 'square', name: '각진형' },
+    { id: 'long', name: '긴형' },
+    { id: 'heart', name: '하트형' }
+  ];
+
+  const SKIN_TONES = {
+    warm: ['#FDE7D6', '#F8D5B8', '#EFC29D', '#DFA97E', '#C68B59', '#9E6B40'],
+    cool: ['#FDE4E1', '#F7CFCB', '#SVB8B2'.replace('SV','EB'), '#D99E96', '#BE7F77', '#965D56']
+  };
+
+  const HAIR_STYLES = [
+    { id: 'short', name: '단정한 숏컷' },
+    { id: 'bob', name: '산뜻한 단발' },
+    { id: 'long', name: '긴 생머리/웨이브' },
+    { id: 'bun', name: '묶은 머리' }
+  ];
+
+  const HAIR_COLORS = [
+    { id: '#2B2B2B', name: '자연 흑발' },
+    { id: '#5C3A21', name: '초코 브라운' },
+    { id: '#A66E38', name: '밝은 갈색' },
+    { id: '#6D214F', name: '와인 브라운' }
+  ];
+
+  const HEIGHT_OPTS = [
+    { id: 'small', name: '작은 편' },
+    { id: 'medium', name: '보통' },
+    { id: 'tall', name: '큰 편' }
+  ];
+
+  const SHOULDER_OPTS = [
+    { id: 'narrow', name: '좁은 편' },
+    { id: 'normal', name: '보통' },
+    { id: 'broad', name: '넓은 편' }
+  ];
+
+  const BODY_TYPES = [
+    { id: 'straight', name: '일자형' },
+    { id: 'upper', name: '상체 볼륨형' },
+    { id: 'lower', name: '하체 볼륨형' },
+    { id: 'curve', name: '곡선형' }
+  ];
+
+  // 퍼스널컬러 체험용 20색 (난색 8, 한색 8, 무채색 4)
+  const DRAPE_COLORS = [
+    // Warm 8
+    { hex: '#FF7F66', name: '코럴', group: 'warm', bright: true, desc: '생기 있고 따뜻하며 친근한 인상을 줍니다.' },
+    { hex: '#FFB899', name: '피치', group: 'warm', bright: true, desc: '부드럽고 은은하며 온화한 느낌을 살려 줍니다.' },
+    { hex: '#FFD447', name: '머스타드 옐로', group: 'warm', bright: true, desc: '발랄하고 에너지가 넘치는 활동적인 인상입니다.' },
+    { hex: '#FFF3D1', name: '아이보리', group: 'warm', bright: true, desc: '얼굴빛을 부드럽고 편안하게 밝혀 줍니다.' },
+    { hex: '#E05A47', name: '토마토 레드', group: 'warm', bright: true, desc: '선명하고 활기차며 시선을 끄는 인상을 줍니다.' },
+    { hex: '#8F9749', name: '올리브 그린', group: 'warm', bright: false, desc: '차분하고 자연스러우며 성숙한 분위기를 냅니다.' },
+    { hex: '#C68B59', name: '카멜 브라운', group: 'warm', bright: false, desc: '따뜻하고 안정감 있으며 단정한 느낌을 줍니다.' },
+    { hex: '#F39C12', name: '탄제린 오렌지', group: 'warm', bright: true, desc: '경쾌하고 적극적이며 따뜻한 에너지를 더합니다.' },
+    // Cool 8
+    { hex: '#C8B6FF', name: '라벤더', group: 'cool', bright: true, desc: '부드럽고 맑으며 우아한 인상을 만들어 줍니다.' },
+    { hex: '#A0E7E5', name: '민트', group: 'cool', bright: true, desc: '상쾌하고 산뜻하며 깨끗한 느낌을 줍니다.' },
+    { hex: '#89CFF0', name: '스카이 블루', group: 'cool', bright: true, desc: '시원하고 맑으며 정돈된 인상을 줍니다.' },
+    { hex: '#FF85A2', name: '쿨 핑크', group: 'cool', bright: true, desc: '화사하고 사랑스러우며 생기 있는 느낌입니다.' },
+    { hex: '#2B59C3', name: '코발트 블루', group: 'cool', bright: false, desc: '선명하고 시원하며 당당하고 신뢰감 있는 인상입니다.' },
+    { hex: '#1D2951', name: '네이비', group: 'cool', bright: false, desc: '단정하고 깔끔하며 실루엣을 또렷하게 잡아 줍니다.' },
+    { hex: '#722F37', name: '버건디', group: 'cool', bright: false, desc: '깊이 있고 차분하며 세련된 분위기를 연출합니다.' },
+    { hex: '#2E8B57', name: '에메랄드 그린', group: 'cool', bright: false, desc: '독특하면서도 지적인 또렷한 인상을 줍니다.' },
+    // Neutral 4
+    { hex: '#FFFFFF', name: '퓨어 화이트', group: 'neutral', bright: true, desc: '깔끔하고 환하며 반사판처럼 얼굴을 밝혀 줍니다.' },
+    { hex: '#B2BEC3', name: '라이트 그레이', group: 'neutral', bright: true, desc: '차분하고 모던하며 다른 색과 조화롭게 어울립니다.' },
+    { hex: '#485460', name: '차콜', group: 'neutral', bright: false, desc: '무게감 있고 세련되며 실루엣을 슬림하게 정돈합니다.' },
+    { hex: '#1E272E', name: '블랙', group: 'neutral', bright: false, desc: '또렷하고 단정하며 강한 대비감을 주는 색입니다.' }
+  ];
+
+  // 기본 코디 14색
+  const BASE_CLOTH_COLORS = [
+    '#FFFFFF', '#FFF3D1', '#FFB899', '#FF7F66', '#FFD447', '#A0E7E5', '#89CFF0',
+    '#C8B6FF', '#8F9749', '#C68B59', '#722F37', '#1D2951', '#485460', '#1E272E'
+  ];
+
+  const GOALS = [
+    { id: 'tall', name: '키가 커 보이게' },
+    { id: 'long_leg', name: '다리가 길어 보이게' },
+    { id: 'broad_shoulder', name: '어깨가 넓어 보이게' },
+    { id: 'narrow_shoulder', name: '어깨가 좁아 보이게' },
+    { id: 'balance', name: '상체와 하체 균형 맞추기' },
+    { id: 'slim_face', name: '얼굴이 갸름해 보이게' },
+    { id: 'soft', name: '부드러운 인상' },
+    { id: 'active', name: '활동적인 인상' },
+    { id: 'neat', name: '단정한 인상' }
+  ];
+
+  const TOPS = [
+    { id: 'tshirt', name: '무지 티셔츠', allowNeck: true },
+    { id: 'h_stripe', name: '가로 줄무늬 티셔츠', allowNeck: true },
+    { id: 'v_stripe', name: '세로 줄무늬 티셔츠', allowNeck: true },
+    { id: 'shirt', name: '셔츠', allowNeck: false },
+    { id: 'knit', name: '니트', allowNeck: true },
+    { id: 'hoodie', name: '후드티', allowNeck: false },
+    { id: 'windbreaker', name: '바람막이', allowNeck: false },
+    { id: 'overfit', name: '오버핏 맨투맨', allowNeck: true },
+    { id: 'crop', name: '크롭 상의', allowNeck: true }
+  ];
+
+  const NECKLINES = [
+    { id: 'round', name: '라운드넥 (기본 둥근 목선)' },
+    { id: 'vneck', name: 'V넥 (시선이 아래로 열리는 목선)' },
+    { id: 'turtleneck', name: '터틀넥 (목을 감싸는 목선)' }
+  ];
+
+  const BOTTOMS = [
+    { id: 'straight_jeans', name: '일자 청바지' },
+    { id: 'flare', name: '나팔바지' },
+    { id: 'skinny', name: '스키니바지' },
+    { id: 'wide', name: '와이드팬츠' },
+    { id: 'sweatpants', name: '추리닝 바지' },
+    { id: 'shorts', name: '반바지' },
+    { id: 'a_skirt', name: 'A라인 치마' },
+    { id: 'h_skirt', name: 'H라인 치마' }
+  ];
+
+  const OUTERS = [
+    { id: 'none', name: '없음' },
+    { id: 'jacket', name: '재킷' },
+    { id: 'cardigan', name: '가디건' },
+    { id: 'longcoat', name: '롱코트' }
+  ];
+
+  const SHOES = [
+    { id: 'sneakers', name: '운동화' },
+    { id: 'loafers', name: '로퍼' },
+    { id: 'sandals', name: '샌들' },
+    { id: 'boots', name: '부츠' }
+  ];
+
+  /* ==============================
+     2. 앱 상태 (State)
+  ============================== */
+  let state = {
+    avatar: {
+      faceShape: 'oval',
+      skinUndertone: 'warm',
+      skinLevel: 1,
+      hairStyle: 'bob',
+      hairColor: '#2B2B2B',
+      height: 'medium',
+      shoulder: 'normal',
+      bodyType: 'straight'
+    },
+    drape: {
+      currentHex: '#FF7F66',
+      compareMode: false,
+      activeSlot: 'L',
+      leftHex: '#FF7F66',
+      rightHex: '#89CFF0',
+      myColors: ['#FF7F66', '#89CFF0']
+    },
+    goals: ['tall', 'neat'],
+    coordi: {
+      top: 'v_stripe',
+      neckline: 'vneck',
+      topColor: '#FFFFFF',
+      bottom: 'flare',
+      bottomColor: '#1D2951',
+      outer: 'none',
+      outerColor: '#1D2951',
+      shoes: 'loafers',
+      shoesColor: '#1E272E'
+    },
+    savedA: null,
+    savedB: null
+  };
+
+  /* ==============================
+     3. SVG 아바타 & 의상 렌더러
+  ============================== */
+  function renderAvatarSVG(avatar, coordi, options = {}) {
+    const uid = Math.random().toString(36).substring(2, 8);
+    const skinHex = SKIN_TONES[avatar.skinUndertone][avatar.skinLevel];
+
+    // 키 스케일
+    const scaleY = avatar.height === 'small' ? 0.91 : avatar.height === 'tall' ? 1.07 : 1.0;
+    const translateY = avatar.height === 'small' ? 28 : avatar.height === 'tall' ? -16 : 0;
+
+    // 어깨 반폭
+    let shW = avatar.shoulder === 'narrow' ? 38 : avatar.shoulder === 'broad' ? 56 : 46;
+    if (avatar.bodyType === 'upper') shW += 6;
+
+    // 가슴/허리/골반 반폭
+    let chestW = avatar.bodyType === 'upper' ? shW - 2 : avatar.bodyType === 'curve' ? 40 : 37;
+    let waistW = avatar.bodyType === 'curve' ? 27 : avatar.bodyType === 'upper' ? 36 : 32;
+    let hipW = avatar.bodyType === 'lower' ? 50 : avatar.bodyType === 'curve' ? 46 : 38;
+
+    // 얼굴형 Path
+    let faceElement = '';
+    if (avatar.faceShape === 'round') {
+      faceElement = `<circle cx="130" cy="74" r="32" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.5"/>`;
+    } else if (avatar.faceShape === 'oval') {
+      faceElement = `<ellipse cx="130" cy="74" rx="28" ry="35" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.5"/>`;
+    } else if (avatar.faceShape === 'long') {
+      faceElement = `<ellipse cx="130" cy="75" rx="26" ry="39" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.5"/>`;
+    } else if (avatar.faceShape === 'square') {
+      faceElement = `<rect x="101" y="42" width="58" height="64" rx="14" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.5"/>`;
+    } else if (avatar.faceShape === 'heart') {
+      faceElement = `<path d="M100,64 C100,42 160,42 160,64 C160,86 142,104 130,111 C118,104 100,86 100,64 Z" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.5"/>`;
+    }
+
+    // 뒷머리 & 앞머리
+    let hairBack = '';
+    let hairFront = '';
+    const hc = avatar.hairColor;
+    if (avatar.hairStyle === 'long') {
+      hairBack = `<path d="M92,65 C85,115 88,165 98,185 L162,185 C172,165 175,115 168,65 Z" fill="${hc}"/>`;
+    } else if (avatar.hairStyle === 'bob') {
+      hairBack = `<path d="M92,65 C88,95 92,118 102,122 L158,122 C168,118 172,95 168,65 Z" fill="${hc}"/>`;
+    } else if (avatar.hairStyle === 'bun') {
+      hairBack = `<circle cx="130" cy="30" r="18" fill="${hc}"/>`;
+    }
+    hairFront = `<path d="M98,70 C98,36 162,36 162,70 C152,52 140,48 130,50 C118,48 108,52 98,70 Z" fill="${hc}"/>`;
+
+    // 드레이프 체험 모드일 경우
+    if (options.drapeHex) {
+      return `
+      <svg viewBox="0 0 260 250" width="100%" height="230" xmlns="http://www.w3.org/2000/svg">
+        <rect width="260" height="250" rx="14" fill="#FAF6F2"/>
+        ${hairBack}
+        <rect x="118" y="102" width="24" height="34" fill="${skinHex}"/>
+        ${faceElement}
+        <circle cx="118" cy="74" r="3.2" fill="#2D3436"/>
+        <circle cx="142" cy="74" r="3.2" fill="#2D3436"/>
+        <path d="M113,65 Q118,62 123,65" stroke="#2D3436" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M137,65 Q142,62 147,65" stroke="#2D3436" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M123,90 Q130,96 137,90" stroke="#C06C5C" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        ${hairFront}
+        <!-- 드레이프 천 -->
+        <path d="M55,132 Q130,152 205,132 L225,235 L35,235 Z" fill="${options.drapeHex}" stroke="#333" stroke-width="1.5"/>
+        <path d="M80,140 Q130,175 180,140" stroke="rgba(255,255,255,0.45)" stroke-width="3" fill="none"/>
+      </svg>`;
+    }
+
+    // 무늬 채우기 결정 (상의)
+    let topFill = coordi.topColor;
+    if (coordi.top === 'h_stripe') topFill = `url(#hstripe-${uid})`;
+    if (coordi.top === 'v_stripe') topFill = `url(#vstripe-${uid})`;
+
+    // 하의 SVG 생성
+    const bCol = coordi.bottomColor;
+    let bottomSVG = '';
+    const waistY = 200;
+    const crotchY = 232;
+    const ankleY = 338;
+    const kneeY = 282;
+
+    if (coordi.bottom === 'flare') {
+      // 나팔바지: 무릎까지 적당히 붙고 발목에서 넓게 퍼짐
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+hipW},${crotchY} L${130+22},${kneeY} L${130+44},${ankleY} L${130+6},${ankleY} L130,${crotchY+6} L${130-6},${ankleY} L${130-44},${ankleY} L${130-22},${kneeY} L${130-hipW},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>`;
+    } else if (coordi.bottom === 'skinny') {
+      // 스키니: 다리 라인에 밀착
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+hipW-3},${crotchY} L${130+17},${ankleY} L${130+5},${ankleY} L130,${crotchY+4} L${130-5},${ankleY} L${130-17},${ankleY} L${130-hipW+3},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>`;
+    } else if (coordi.bottom === 'wide') {
+      // 와이드팬츠: 통이 넓게 일자로 툭 떨어짐
+      const wSide = Math.max(hipW + 6, 46);
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+wSide},${crotchY} L${130+wSide+3},${ankleY} L${130+4},${ankleY} L130,${crotchY+10} L${130-4},${ankleY} L${130-wSide-3},${ankleY} L${130-wSide},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>`;
+    } else if (coordi.bottom === 'straight_jeans') {
+      const sSide = Math.max(hipW - 2, 36);
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+sSide},${crotchY} L${130+28},${ankleY} L${130+5},${ankleY} L130,${crotchY+6} L${130-5},${ankleY} L${130-28},${ankleY} L${130-sSide},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8"/>`;
+    } else if (coordi.bottom === 'sweatpants') {
+      const swSide = Math.max(hipW + 3, 42);
+      bottomSVG = `
+        <path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+swSide},${crotchY} Q${130+swSide+4},${kneeY} ${130+24},${ankleY-6} L${130+20},${ankleY} L${130+6},${ankleY} L130,${crotchY+8} L${130-6},${ankleY} L${130-20},${ankleY} L${130-24},${ankleY-6} Q${130-swSide-4},${kneeY} ${130-swSide},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8"/>
+        <line x1="126" y1="${waistY+2}" x2="122" y2="${waistY+18}" stroke="#FFF" stroke-width="2"/>
+        <line x1="134" y1="${waistY+2}" x2="138" y2="${waistY+18}" stroke="#FFF" stroke-width="2"/>`;
+    } else if (coordi.bottom === 'shorts') {
+      const shY = 264;
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+hipW+2},${shY} L${130+5},${shY} L130,${crotchY+4} L${130-5},${shY} L${130-hipW-2},${shY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8"/>`;
+    } else if (coordi.bottom === 'a_skirt') {
+      const skY = 285;
+      const flareW = Math.max(hipW + 18, 60);
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+flareW},${skY} Q130,${skY+8} ${130-flareW},${skY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8"/>`;
+    } else if (coordi.bottom === 'h_skirt') {
+      const skY = 288;
+      bottomSVG = `<path d="M${130-waistW},${waistY} L${130+waistW},${waistY} L${130+hipW},${crotchY} L${130+hipW-3},${skY} L${130-hipW+3},${skY} L${130-hipW},${crotchY} Z" fill="${bCol}" stroke="#2D3436" stroke-width="1.8"/>`;
+    }
+
+    // 상의 SVG 생성
+    const topShW = (coordi.top === 'overfit' || coordi.top === 'windbreaker') ? shW + 11 : shW + 3;
+    const topBodyW = (coordi.top === 'overfit' || coordi.top === 'windbreaker') ? Math.max(chestW, waistW) + 12 : waistW + 4;
+    const topHemY = coordi.top === 'crop' ? 186 : (coordi.top === 'overfit' ? 222 : 210);
+    const sleeveEndY = coordi.top === 'crop' ? 172 : 196;
+
+    const topPath = `
+      M ${130-topShW},122
+      L ${130+topShW},122
+      L ${130+topShW+16},${sleeveEndY}
+      L ${130+topShW-2},${sleeveEndY+6}
+      L ${130+topBodyW},154
+      L ${130+topBodyW},${topHemY}
+      L ${130-topBodyW},${topHemY}
+      L ${130-topBodyW},154
+      L ${130-topShW+2},${sleeveEndY+6}
+      L ${130-topShW-16},${sleeveEndY}
+      Z
+    `;
+
+    // 네크라인 디테일
+    let neckOverlay = '';
+    const allowNeck = TOPS.find(t => t.id === coordi.top)?.allowNeck;
+    if (!allowNeck) {
+      if (coordi.top === 'shirt') {
+        neckOverlay = `
+          <polygon points="116,120 130,144 144,120" fill="${skinHex}"/>
+          <polygon points="112,118 130,136 120,142" fill="#FFF" stroke="#2D3436" stroke-width="1.5"/>
+          <polygon points="148,118 130,136 140,142" fill="#FFF" stroke="#2D3436" stroke-width="1.5"/>
+          <line x1="130" y1="138" x2="130" y2="${topHemY}" stroke="#2D3436" stroke-width="1.4" stroke-dasharray="3,4"/>
+        `;
+      } else if (coordi.top === 'hoodie') {
+        neckOverlay = `
+          <path d="M106,122 Q130,142 154,122 Q148,108 130,108 Q112,108 106,122 Z" fill="${coordi.topColor}" stroke="#2D3436" stroke-width="1.8"/>
+          <line x1="123" y1="132" x2="123" y2="155" stroke="#FFF" stroke-width="2"/>
+          <line x1="137" y1="132" x2="137" y2="155" stroke="#FFF" stroke-width="2"/>
+        `;
+      } else if (coordi.top === 'windbreaker') {
+        neckOverlay = `
+          <rect x="115" y="112" width="30" height="12" rx="3" fill="${coordi.topColor}" stroke="#2D3436" stroke-width="1.6"/>
+          <line x1="130" y1="112" x2="130" y2="${topHemY}" stroke="#2D3436" stroke-width="2"/>
+          <polyline points="${130-topBodyW},165 130,178 ${130+topBodyW},165" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.5"/>
+        `;
+      }
+    } else {
+      if (coordi.neckline === 'vneck') {
+        neckOverlay = `<polygon points="114,121 146,121 130,152" fill="${skinHex}" stroke="#2D3436" stroke-width="1.5"/>`;
+      } else if (coordi.neckline === 'round') {
+        neckOverlay = `<path d="M114,121 Q130,139 146,121 Z" fill="${skinHex}" stroke="#2D3436" stroke-width="1.5"/>`;
+      } else if (coordi.neckline === 'turtleneck') {
+        neckOverlay = `<rect x="116" y="109" width="28" height="16" rx="4" fill="${topFill}" stroke="#2D3436" stroke-width="1.6"/>`;
+      }
+    }
+
+    // 니트 재질 텍스처 선
+    let knitTexture = '';
+    if (coordi.top === 'knit') {
+      knitTexture = `
+        <line x1="115" y1="135" x2="115" y2="${topHemY-4}" stroke="rgba(0,0,0,0.12)" stroke-width="2" stroke-dasharray="4,3"/>
+        <line x1="130" y1="135" x2="130" y2="${topHemY-4}" stroke="rgba(0,0,0,0.12)" stroke-width="2" stroke-dasharray="4,3"/>
+        <line x1="145" y1="135" x2="145" y2="${topHemY-4}" stroke="rgba(0,0,0,0.12)" stroke-width="2" stroke-dasharray="4,3"/>
+      `;
+    }
+
+    // 겉옷 SVG 생성
+    let outerSVG = '';
+    if (coordi.outer !== 'none') {
+      const oCol = coordi.outerColor;
+      const outShW = topShW + 5;
+      const outHemY = coordi.outer === 'longcoat' ? 305 : 220;
+      outerSVG = `
+        <!-- 왼쪽 겉옷 자락 -->
+        <path d="M${130-outShW},120 L118,120 L118,${outHemY} L${130-topBodyW-8},${outHemY} L${130-topBodyW-6},155 L${130-outShW-2},202 L${130-outShW-18},196 Z" fill="${oCol}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>
+        <!-- 오른쪽 겉옷 자락 -->
+        <path d="M142,120 L${130+outShW},120 L${130+outShW+18},196 L${130+outShW+2},202 L${130+topBodyW+6},155 L${130+topBodyW+8},${outHemY} L142,${outHemY} Z" fill="${oCol}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>
+      `;
+      if (coordi.outer === 'jacket' || coordi.outer === 'longcoat') {
+        outerSVG += `
+          <polygon points="118,120 106,148 118,165" fill="${oCol}" stroke="#2D3436" stroke-width="1.5"/>
+          <polygon points="142,120 154,148 142,165" fill="${oCol}" stroke="#2D3436" stroke-width="1.5"/>
+        `;
+      }
+    }
+
+    // 신발 SVG 생성
+    const sCol = coordi.shoesColor;
+    let shoesSVG = '';
+    if (coordi.shoes === 'boots') {
+      shoesSVG = `
+        <path d="M105,318 L123,318 L125,358 L98,358 Q98,346 105,344 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+        <path d="M137,318 L155,318 L155,344 Q162,346 162,358 L135,358 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+      `;
+    } else if (coordi.shoes === 'sneakers') {
+      shoesSVG = `
+        <path d="M104,340 L124,340 L125,358 L96,358 Q96,346 104,340 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+        <rect x="96" y="354" width="29" height="5" rx="2" fill="#FFF" stroke="#2D3436" stroke-width="1"/>
+        <path d="M136,340 L156,340 Q164,346 164,358 L135,358 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+        <rect x="135" y="354" width="29" height="5" rx="2" fill="#FFF" stroke="#2D3436" stroke-width="1"/>
+      `;
+    } else if (coordi.shoes === 'loafers') {
+      shoesSVG = `
+        <path d="M104,343 L124,343 L125,358 L98,358 Q98,348 104,343 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+        <path d="M136,343 L156,343 Q162,348 162,358 L135,358 Z" fill="${sCol}" stroke="#2D3436" stroke-width="1.6"/>
+      `;
+    } else if (coordi.shoes === 'sandals') {
+      shoesSVG = `
+        <rect x="98" y="353" width="26" height="6" rx="2" fill="${sCol}" stroke="#2D3436" stroke-width="1.4"/>
+        <rect x="103" y="343" width="18" height="4" fill="${sCol}"/>
+        <rect x="136" y="353" width="26" height="6" rx="2" fill="${sCol}" stroke="#2D3436" stroke-width="1.4"/>
+        <rect x="139" y="343" width="18" height="4" fill="${sCol}"/>
+      `;
+    }
+
+    return `
+    <svg viewBox="0 0 260 380" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="hstripe-${uid}" width="20" height="12" patternUnits="userSpaceOnUse">
+          <rect width="20" height="12" fill="${coordi.topColor}"/>
+          <rect width="20" height="5" fill="#2D3436" opacity="0.78"/>
+        </pattern>
+        <pattern id="vstripe-${uid}" width="12" height="20" patternUnits="userSpaceOnUse">
+          <rect width="12" height="20" fill="${coordi.topColor}"/>
+          <rect width="5" height="20" fill="#2D3436" opacity="0.78"/>
+        </pattern>
+      </defs>
+
+      <!-- 배경 원형 장식 -->
+      <circle cx="130" cy="195" r="115" fill="#FAF3EE"/>
+
+      <g transform="translate(0, ${translateY}) scale(1, ${scaleY})" style="transform-origin: 130px 190px;">
+        <!-- 뒷머리 -->
+        ${hairBack}
+
+        <!-- 목 & 기본 몸통/다리 피부 -->
+        <rect x="119" y="100" width="22" height="30" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.2"/>
+        <!-- 다리 -->
+        <rect x="107" y="220" width="16" height="128" rx="6" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.2"/>
+        <rect x="137" y="220" width="16" height="128" rx="6" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.2"/>
+        <!-- 복부 피부 (크롭티 대비) -->
+        <path d="M${130-waistW},165 L${130+waistW},165 L${130+waistW},210 L${130-waistW},210 Z" fill="${skinHex}"/>
+
+        <!-- 손 -->
+        <circle cx="${130-topShW-10}" cy="${sleeveEndY+8}" r="7" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.2"/>
+        <circle cx="${130+topShW+10}" cy="${sleeveEndY+8}" r="7" fill="${skinHex}" stroke="#D2A88C" stroke-width="1.2"/>
+
+        <!-- 신발 (나팔바지 등 바지 밑단 아래로 오도록 먼저 그리거나 조정, 부츠는 바지 위로) -->
+        ${coordi.shoes !== 'boots' ? shoesSVG : ''}
+
+        <!-- 하의 -->
+        ${bottomSVG}
+
+        <!-- 부츠일 때는 바지 위로 -->
+        ${coordi.shoes === 'boots' ? shoesSVG : ''}
+
+        <!-- 상의 -->
+        <path d="${topPath}" fill="${topFill}" stroke="#2D3436" stroke-width="1.8" stroke-linejoin="round"/>
+        ${knitTexture}
+        ${neckOverlay}
+
+        <!-- 겉옷 -->
+        ${outerSVG}
+
+        <!-- 얼굴 -->
+        ${faceElement}
+        <circle cx="118" cy="74" r="3" fill="#2D3436"/>
+        <circle cx="142" cy="74" r="3" fill="#2D3436"/>
+        <circle cx="112" cy="81" r="4" fill="#FF8A80" opacity="0.35"/>
+        <circle cx="148" cy="81" r="4" fill="#FF8A80" opacity="0.35"/>
+        <path d="M113,65 Q118,62 123,65" stroke="#2D3436" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M137,65 Q142,62 147,65" stroke="#2D3436" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M124,89 Q130,94 136,89" stroke="#C06C5C" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+        <!-- 앞머리 -->
+        ${hairFront}
+      </g>
+    </svg>`;
+  }
+
+  /* ==============================
+     4. 착시 원리 및 효과 미터 계산기
+  ============================== */
+  function isBrightColor(hex) {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substr(0,2), 16);
+    const g = parseInt(c.substr(2,2), 16);
+    const b = parseInt(c.substr(4,2), 16);
+    const lum = (0.299*r + 0.587*g + 0.114*b);
+    return lum > 165;
+  }
+
+  function isSimilarColor(hex1, hex2) {
+    if (hex1 === hex2) return true;
+    return isBrightColor(hex1) === isBrightColor(hex2);
+  }
+
+  function calculateEffects(avatar, coordi, goals) {
+    let vertical = 50;   // 세로로 길어 보임
+    let upper = 50;      // 어깨·상체 강조
+    let lower = 50;      // 하체 강조
+    let slimFace = 50;   // 얼굴 갸름해 보임
+    let moodScore = { soft: 0, active: 0, neat: 0 };
+    let reasons = [];
+
+    const topBright = isBrightColor(coordi.topColor);
+    const botBright = isBrightColor(coordi.bottomColor);
+    const oneTone = isSimilarColor(coordi.topColor, coordi.bottomColor);
+
+    // 1. 세로선 / 가로선 무늬
+    if (coordi.top === 'v_stripe') {
+      vertical += 18;
+      upper -= 8;
+      reasons.push('세로 줄무늬 티셔츠의 세로선이 시선을 위아래로 이끌어 몸이 길고 슬림해 보여요.');
+    }
+    if (coordi.top === 'h_stripe') {
+      vertical -= 10;
+      upper += 20;
+      reasons.push('가로 줄무늬가 시선을 좌우로 넓혀 어깨와 상체를 볼륨감 있게 강조해요.');
+    }
+
+    // 2. 상하의 색상 대비 / 원톤
+    if (oneTone) {
+      vertical += 16;
+      reasons.push('상의와 하의를 비슷한 밝기의 색(원톤)으로 맞춰 시선이 끊기지 않고 키가 커 보여요.');
+    } else {
+      vertical -= 8;
+    }
+
+    // 3. 명도 팽창/수축
+    if (topBright) { upper += 12; } else { upper -= 10; vertical += 5; }
+    if (botBright) { lower += 12; } else { lower -= 10; vertical += 5; }
+
+    // 4. 상의 실루엣
+    if (coordi.top === 'crop') {
+      vertical += 16;
+      reasons.push('크롭 상의가 허리선을 높여 다리가 훨씬 길어 보이는 착시를 만들어요.');
+    }
+    if (coordi.top === 'overfit' || coordi.top === 'windbreaker') {
+      upper += 18;
+      moodScore.active += 2;
+      reasons.push('여유 있는 오버핏·바람막이 실루엣이 상체 부피감을 살리고 활동적인 느낌을 줘요.');
+    }
+
+    // 5. 하의 실루엣
+    if (coordi.bottom === 'flare') {
+      vertical += 15;
+      reasons.push('아래로 퍼지는 나팔바지가 시선을 분산해 다리가 길고 곧아 보여요.');
+    } else if (coordi.bottom === 'skinny') {
+      lower += 16;
+      reasons.push('다리에 붙는 스키니 실루엣이 하체 라인을 또렷하게 드러내요.');
+    } else if (coordi.bottom === 'wide' || coordi.bottom === 'a_skirt') {
+      lower -= 12;
+      vertical += 6;
+      reasons.push('여유 있게 퍼지는 와이드팬츠·A라인 실루엣이 하체 볼륨을 자연스럽게 감싸 줘요.');
+    }
+
+    // 6. 겉옷 효과
+    if (coordi.outer === 'longcoat') {
+      vertical += 18;
+      moodScore.neat += 2;
+      reasons.push('길게 내려오는 롱코트의 앞여밈 세로선이 키를 훌쩍 커 보이게 해요.');
+    } else if (coordi.outer === 'jacket') {
+      upper += 12;
+      moodScore.neat += 3;
+      reasons.push('재킷의 직선적인 어깨선이 상체를 반듯하고 단정하게 연출해요.');
+    } else if (coordi.outer === 'cardigan') {
+      moodScore.soft += 3;
+    }
+
+    // 7. 네크라인 & 얼굴형 착시
+    const allowNeck = TOPS.find(t => t.id === coordi.top)?.allowNeck;
+    if ((allowNeck && coordi.neckline === 'vneck') || coordi.top === 'shirt') {
+      slimFace += 24;
+      vertical += 6;
+      reasons.push('V자 형태의 목선이 목을 길어 보이게 하고 둥글거나 각진 얼굴형을 갸름해 보이게 해요.');
+    } else if (allowNeck && coordi.neckline === 'turtleneck') {
+      slimFace -= 12;
+      if (avatar.faceShape === 'long') {
+        reasons.push('목을 감싸는 터틀넥이 긴 얼굴형의 세로 길이를 차분하게 보완해 줘요.');
+      }
+    } else if (allowNeck && coordi.neckline === 'round') {
+      moodScore.soft += 1;
+    }
+
+    // 8. 인상(부드러움 / 활동적 / 단정)
+    if (coordi.top === 'knit') { moodScore.soft += 3; reasons.push('포근한 니트 재질이 부드럽고 따뜻한 인상을 더해 줘요.'); }
+    if (coordi.top === 'hoodie' || coordi.bottom === 'sweatpants' || coordi.bottom === 'shorts' || coordi.shoes === 'sneakers') {
+      moodScore.active += 2;
+    }
+    if (coordi.top === 'shirt' || coordi.bottom === 'h_skirt' || coordi.shoes === 'loafers') {
+      moodScore.neat += 2;
+    }
+
+    // 체형 균형 체크
+    let balanceGood = false;
+    if (avatar.bodyType === 'upper' && (botBright || coordi.bottom === 'wide' || coordi.bottom === 'a_skirt' || coordi.bottom === 'flare')) {
+      balanceGood = true;
+      reasons.push('상체 볼륨형 체형에 하의를 밝거나 여유 있는 실루엣으로 매치해 상·하체 균형이 잘 맞아요!');
+    } else if (avatar.bodyType === 'lower' && (topBright || coordi.top === 'h_stripe' || coordi.outer === 'jacket')) {
+      balanceGood = true;
+      reasons.push('하체 볼륨형 체형에 상의로 시선을 끌어올려 전체적인 실루엣 균형이 돋보여요!');
+    } else if (Math.abs(upper - lower) <= 15) {
+      balanceGood = true;
+    }
+
+    const clamp = (v) => Math.max(15, Math.min(98, v));
+    vertical = clamp(vertical);
+    upper = clamp(upper);
+    lower = clamp(lower);
+    slimFace = clamp(slimFace);
+
+    let dominantMood = '활동적';
+    if (moodScore.soft >= moodScore.active && moodScore.soft >= moodScore.neat) dominantMood = '부드러움';
+    else if (moodScore.neat >= moodScore.active && moodScore.neat >= moodScore.soft) dominantMood = '단정함';
+
+    if (reasons.length === 0) {
+      reasons.push('기본 아이템과 색상을 깔끔하게 조합해 자연스러운 일상 코디를 완성했어요.');
+    }
+
+    return {
+      vertical,
+      upper,
+      lower,
+      slimFace,
+      dominantMood,
+      balanceGood,
+      reasons: reasons.slice(0, 3)
+    };
+  }
+
+  function renderMetersHTML(eff, goals) {
+    const isTallGoal = (goals.includes('tall') || goals.includes('long_leg')) && eff.vertical >= 65;
+    const isUpperGoal = (goals.includes('broad_shoulder') && eff.upper >= 62) || (goals.includes('narrow_shoulder') && eff.upper <= 45);
+    const isLowerGoal = goals.includes('balance') && eff.balanceGood;
+    const isFaceGoal = goals.includes('slim_face') && eff.slimFace >= 65;
+    const isMoodGoal = (goals.includes('soft') && eff.dominantMood === '부드러움') ||
+                       (goals.includes('active') && eff.dominantMood === '활동적') ||
+                       (goals.includes('neat') && eff.dominantMood === '단정함');
+
+    return `
+      <div class="meter-row">
+        <div class="meter-header">
+          <span>세로로 길어 보임 (키·다리 길어 보임)${isTallGoal ? '<span class="goal-badge">목표 달성!</span>' : ''}</span>
+          <span>${eff.vertical}%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill ${isTallGoal ? 'goal-match' : ''}" style="width:${eff.vertical}%"></div></div>
+      </div>
+
+      <div class="meter-row">
+        <div class="meter-header">
+          <span>어깨·상체 강조${isUpperGoal ? '<span class="goal-badge">목표 달성!</span>' : ''}</span>
+          <span>${eff.upper}%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill ${isUpperGoal ? 'goal-match' : ''}" style="width:${eff.upper}%"></div></div>
+      </div>
+
+      <div class="meter-row">
+        <div class="meter-header">
+          <span>하체 강조 & 상하체 균형${isLowerGoal ? '<span class="goal-badge">균형 달성!</span>' : ''}</span>
+          <span>${eff.lower}%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill ${isLowerGoal ? 'goal-match' : ''}" style="width:${eff.lower}%"></div></div>
+      </div>
+
+      <div class="meter-row">
+        <div class="meter-header">
+          <span>얼굴·목선이 갸름해 보임${isFaceGoal ? '<span class="goal-badge">목표 달성!</span>' : ''}</span>
+          <span>${eff.slimFace}%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill ${isFaceGoal ? 'goal-match' : ''}" style="width:${eff.slimFace}%"></div></div>
+      </div>
+
+      <div class="meter-row" style="margin-bottom:2px;">
+        <div class="meter-header">
+          <span>전체 인상 분위기${isMoodGoal ? '<span class="goal-badge">목표 달성!</span>' : ''}</span>
+          <span style="color:${isMoodGoal ? 'var(--green)' : 'var(--secondary)'};">✨ ${eff.dominantMood}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ==============================
+     5. UI 초기화 및 이벤트 연결
+  ============================== */
+  function initUI() {
+    // 1) 아바타 옵션 생성
+    buildChipGroup('faceShapeOpts', FACE_SHAPES, state.avatar.faceShape, (val) => { state.avatar.faceShape = val; refreshAll(); });
+    buildChipGroup('skinUndertoneOpts', [
+      { id: 'warm', name: '☀️ 노란 기(따뜻한 톤)' },
+      { id: 'cool', name: '🌸 붉은 기(화사한 톤)' }
+    ], state.avatar.skinUndertone, (val) => { state.avatar.skinUndertone = val; renderSkinLevels(); refreshAll(); });
+    renderSkinLevels();
+
+    buildChipGroup('hairStyleOpts', HAIR_STYLES, state.avatar.hairStyle, (val) => { state.avatar.hairStyle = val; refreshAll(); });
+    buildSwatchGroup('hairColorOpts', HAIR_COLORS.map(h => h.id), state.avatar.hairColor, (val) => { state.avatar.hairColor = val; refreshAll(); });
+    buildChipGroup('heightOpts', HEIGHT_OPTS, state.avatar.height, (val) => { state.avatar.height = val; refreshAll(); });
+    buildChipGroup('shoulderOpts', SHOULDER_OPTS, state.avatar.shoulder, (val) => { state.avatar.shoulder = val; refreshAll(); });
+    buildChipGroup('bodyTypeOpts', BODY_TYPES, state.avatar.bodyType, (val) => { state.avatar.bodyType = val; refreshAll(); });
+
+    // 2) 드레이프 색상 생성
+    renderDrapeSwatches();
+
+    // 3) 연출 목표 & 코디 옵션 생성
+    renderGoalChips();
+    buildChipGroup('topOpts', TOPS, state.coordi.top, (val) => { state.coordi.top = val; refreshAll(); });
+    buildChipGroup('necklineOpts', NECKLINES, state.coordi.neckline, (val) => { state.coordi.neckline = val; refreshAll(); });
+    buildChipGroup('bottomOpts', BOTTOMS, state.coordi.bottom, (val) => { state.coordi.bottom = val; refreshAll(); });
+    buildChipGroup('outerOpts', OUTERS, state.coordi.outer, (val) => { state.coordi.outer = val; refreshAll(); });
+    buildChipGroup('shoesOpts', SHOES, state.coordi.shoes, (val) => { state.coordi.shoes = val; refreshAll(); });
+
+    // 초기 A/B 비교 슬롯 기본값 세팅
+    state.savedA = JSON.parse(JSON.stringify(state.coordi));
+    state.savedB = {
+      top: 'h_stripe',
+      neckline: 'round',
+      topColor: '#FFB899',
+      bottom: 'wide',
+      bottomColor: '#FFFFFF',
+      outer: 'cardigan',
+      outerColor: '#C68B59',
+      shoes: 'sneakers',
+      shoesColor: '#FFFFFF'
+    };
+
+    refreshAll();
+  }
+
+  function buildChipGroup(containerId, items, selectedId, onSelect) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    items.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'chip' + (item.id === selectedId ? ' selected' : '');
+      btn.textContent = item.name;
+      btn.onclick = () => {
+        Array.from(el.children).forEach(c => c.classList.remove('selected'));
+        btn.classList.add('selected');
+        onSelect(item.id);
+      };
+      el.appendChild(btn);
+    });
+  }
+
+  function buildSwatchGroup(containerId, hexList, selectedHex, onSelect, myColors = []) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    hexList.forEach(hex => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (hex === selectedHex ? ' selected' : '') + (myColors.includes(hex) ? ' my-saved' : '');
+      sw.style.backgroundColor = hex;
+      sw.onclick = () => {
+        onSelect(hex);
+      };
+      el.appendChild(sw);
+    });
+  }
+
+  function renderSkinLevels() {
+    const tones = SKIN_TONES[state.avatar.skinUndertone];
+    const el = document.getElementById('skinLevelOpts');
+    el.innerHTML = '';
+    tones.forEach((hex, idx) => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (state.avatar.skinLevel === idx ? ' selected' : '');
+      sw.style.backgroundColor = hex;
+      sw.title = `${idx + 1}단계`;
+      sw.onclick = () => {
+        state.avatar.skinLevel = idx;
+        renderSkinLevels();
+        refreshAll();
+      };
+      el.appendChild(sw);
+    });
+  }
+
+  /* ==============================
+     6. 드레이프 (색 대어 보기) 로직
+  ============================== */
+  function renderDrapeSwatches() {
+    const groups = { warm: 'warmDrapeList', cool: 'coolDrapeList', neutral: 'neutralDrapeList' };
+    Object.keys(groups).forEach(g => {
+      const el = document.getElementById(groups[g]);
+      el.innerHTML = '';
+      DRAPE_COLORS.filter(c => c.group === g).forEach(c => {
+        const sw = document.createElement('div');
+        const isSel = state.drape.currentHex === c.hex;
+        const isMy = state.drape.myColors.includes(c.hex);
+        sw.className = 'swatch' + (isSel ? ' selected' : '') + (isMy ? ' my-saved' : '');
+        sw.style.backgroundColor = c.hex;
+        sw.title = c.name;
+        sw.onclick = () => selectDrapeColor(c.hex);
+        el.appendChild(sw);
+      });
+    });
+
+    // 나의 색 표시줄
+    const myRow = document.getElementById('mySavedColorsRow');
+    myRow.innerHTML = '';
+    if (state.drape.myColors.length === 0) {
+      myRow.innerHTML = '<span style="font-size:0.85rem; color:var(--muted);">아직 저장한 색이 없어요. 마음에 드는 색을 고르고 [나의 색으로 저장]을 눌러 보세요!</span>';
+    } else {
+      state.drape.myColors.forEach(hex => {
+        const info = DRAPE_COLORS.find(d => d.hex === hex);
+        const badge = document.createElement('div');
+        badge.style.cssText = 'display:inline-flex; align-items:center; gap:6px; background:#fff; padding:5px 12px; border-radius:20px; border:1px solid var(--border); font-size:0.85rem; font-weight:700;';
+        badge.innerHTML = `<span style="width:18px; height:18px; border-radius:50%; background:${hex}; border:1px solid #ccc; display:inline-block;"></span> ${info ? info.name : hex}`;
+        myRow.appendChild(badge);
+      });
+    }
+    document.getElementById('myColorCount').textContent = state.drape.myColors.length;
+  }
+
+  function selectDrapeColor(hex) {
+    state.drape.currentHex = hex;
+    if (state.drape.compareMode) {
+      if (state.drape.activeSlot === 'L') state.drape.leftHex = hex;
+      else state.drape.rightHex = hex;
+    }
+    renderDrapeSwatches();
+    refreshAll();
+  }
+
+  function toggleMyColor() {
+    const hex = state.drape.currentHex;
+    const idx = state.drape.myColors.indexOf(hex);
+    if (idx >= 0) {
+      state.drape.myColors.splice(idx, 1);
+    } else {
+      if (state.drape.myColors.length >= 3) {
+        alert("'나의 색'은 최대 3개까지 저장할 수 있어요. 기존 색을 해제한 뒤 추가해 보세요!");
+        return;
+      }
+      state.drape.myColors.push(hex);
+    }
+    renderDrapeSwatches();
+    refreshAll();
+  }
+
+  function toggleDrapeCompare() {
+    state.drape.compareMode = !state.drape.compareMode;
+    document.getElementById('drapeSingleView').style.display = state.drape.compareMode ? 'none' : 'block';
+    document.getElementById('drapeCompareView').style.display = state.drape.compareMode ? 'block' : 'none';
+    document.getElementById('drapeCompareBtn').textContent = state.drape.compareMode ? '단일 화면으로 보기' : '나란히 비교하기';
+    refreshAll();
+  }
+
+  function setActiveCompareSlot(slot) {
+    state.drape.activeSlot = slot;
+    document.getElementById('compSlotL').style.borderColor = slot === 'L' ? 'var(--primary)' : 'var(--border)';
+    document.getElementById('compSlotR').style.borderColor = slot === 'R' ? 'var(--primary)' : 'var(--border)';
+  }
+
+  /* ==============================
+     7. 코디 & 목표 & 비교 로직
+  ============================== */
+  function renderGoalChips() {
+    const el = document.getElementById('goalOpts');
+    el.innerHTML = '';
+    GOALS.forEach(g => {
+      const btn = document.createElement('button');
+      const isSel = state.goals.includes(g.id);
+      btn.className = 'chip' + (isSel ? ' selected' : '');
+      btn.textContent = (isSel ? '✔ ' : '') + g.name;
+      btn.onclick = () => {
+        if (isSel) {
+          state.goals = state.goals.filter(x => x !== g.id);
+        } else {
+          if (state.goals.length >= 2) state.goals.shift();
+          state.goals.push(g.id);
+        }
+        renderGoalChips();
+        refreshAll();
+      };
+      el.appendChild(btn);
+    });
+  }
+
+  function switchClotheTab(tabName, btnEl) {
+    document.querySelectorAll('.clothe-tab').forEach(el => el.style.display = 'none');
+    document.getElementById('tab-' + tabName).style.display = 'block';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+
+  function getMergedPalette() {
+    const merged = [...state.drape.myColors];
+    BASE_CLOTH_COLORS.forEach(c => {
+      if (!merged.includes(c)) merged.push(c);
+    });
+    return merged;
+  }
+
+  function saveCoordiSlot(slot) {
+    if (slot === 'A') state.savedA = JSON.parse(JSON.stringify(state.coordi));
+    if (slot === 'B') state.savedB = JSON.parse(JSON.stringify(state.coordi));
+    refreshAll();
+    alert(`현재 코디가 [${slot}안]에 저장되었어요! '④ A/B 비교' 화면에서 나란히 비교할 수 있습니다.`);
+  }
+
+  function loadCoordiSlot(slot) {
+    const target = slot === 'A' ? state.savedA : state.savedB;
+    if (!target) return;
+    state.coordi = JSON.parse(JSON.stringify(target));
+    buildChipGroup('topOpts', TOPS, state.coordi.top, (val) => { state.coordi.top = val; refreshAll(); });
+    buildChipGroup('necklineOpts', NECKLINES, state.coordi.neckline, (val) => { state.coordi.neckline = val; refreshAll(); });
+    buildChipGroup('bottomOpts', BOTTOMS, state.coordi.bottom, (val) => { state.coordi.bottom = val; refreshAll(); });
+    buildChipGroup('outerOpts', OUTERS, state.coordi.outer, (val) => { state.coordi.outer = val; refreshAll(); });
+    buildChipGroup('shoesOpts', SHOES, state.coordi.shoes, (val) => { state.coordi.shoes = val; refreshAll(); });
+    refreshAll();
+    goStep(4);
+  }
+
+  /* ==============================
+     8. 전체 화면 동기화 (refreshAll)
+  ============================== */
+  function refreshAll() {
+    // 단계 2 아바타
+    document.getElementById('avatar-stage-2').innerHTML = renderAvatarSVG(state.avatar, state.coordi);
+
+    // 단계 3 드레이프
+    const dInfo = DRAPE_COLORS.find(d => d.hex === state.drape.currentHex) || DRAPE_COLORS[0];
+    document.getElementById('avatar-stage-3').innerHTML = renderAvatarSVG(state.avatar, state.coordi, { drapeHex: state.drape.currentHex });
+    document.getElementById('drapeColorName').textContent = dInfo.name;
+    document.getElementById('drapeColorDesc').textContent = dInfo.desc;
+
+    const lInfo = DRAPE_COLORS.find(d => d.hex === state.drape.leftHex) || DRAPE_COLORS[0];
+    const rInfo = DRAPE_COLORS.find(d => d.hex === state.drape.rightHex) || DRAPE_COLORS[1];
+    document.getElementById('avatar-drape-L').innerHTML = renderAvatarSVG(state.avatar, state.coordi, { drapeHex: state.drape.leftHex });
+    document.getElementById('avatar-drape-R').innerHTML = renderAvatarSVG(state.avatar, state.coordi, { drapeHex: state.drape.rightHex });
+    document.getElementById('compNameL').textContent = `${lInfo.name} (${lInfo.desc.split(' ')[0]})`;
+    document.getElementById('compNameR').textContent = `${rInfo.name} (${rInfo.desc.split(' ')[0]})`;
+
+    // 단계 4 코디 색상표 ('나의 색' 맨 앞 배치)
+    const palette = getMergedPalette();
+    buildSwatchGroup('topColorOpts', palette, state.coordi.topColor, (hex) => { state.coordi.topColor = hex; refreshAll(); }, state.drape.myColors);
+    buildSwatchGroup('bottomColorOpts', palette, state.coordi.bottomColor, (hex) => { state.coordi.bottomColor = hex; refreshAll(); }, state.drape.myColors);
+    buildSwatchGroup('outerColorOpts', palette, state.coordi.outerColor, (hex) => { state.coordi.outerColor = hex; refreshAll(); }, state.drape.myColors);
+    buildSwatchGroup('shoesColorOpts', palette, state.coordi.shoesColor, (hex) => { state.coordi.shoesColor = hex; refreshAll(); }, state.drape.myColors);
+
+    // 네크라인 활성/비활성 표시
+    const allowNeck = TOPS.find(t => t.id === state.coordi.top)?.allowNeck;
+    document.getElementById('necklineGroup').style.opacity = allowNeck ? '1' : '0.45';
+    document.getElementById('necklineGroup').style.pointerEvents = allowNeck ? 'auto' : 'none';
+
+    // 단계 4 아바타 & 미터
+    document.getElementById('avatar-stage-4').innerHTML = renderAvatarSVG(state.avatar, state.coordi);
+    const eff = calculateEffects(state.avatar, state.coordi, state.goals);
+    document.getElementById('metersContainer').innerHTML = renderMetersHTML(eff, state.goals);
+    document.getElementById('effectReasons').innerHTML = eff.reasons.map(r => `<li>${r}</li>`).join('');
+
+    // 단계 5 A/B 비교 렌더링
+    if (state.savedA) {
+      document.getElementById('avatar-compare-A').innerHTML = renderAvatarSVG(state.avatar, state.savedA);
+      const topA = TOPS.find(t => t.id === state.savedA.top)?.name;
+      const botA = BOTTOMS.find(b => b.id === state.savedA.bottom)?.name;
+      document.getElementById('desc-compare-A').textContent = `${topA} + ${botA}`;
+      document.getElementById('meters-compare-A').innerHTML = renderMetersHTML(calculateEffects(state.avatar, state.savedA, state.goals), state.goals);
+    }
+    if (state.savedB) {
+      document.getElementById('avatar-compare-B').innerHTML = renderAvatarSVG(state.avatar, state.savedB);
+      const topB = TOPS.find(t => t.id === state.savedB.top)?.name;
+      const botB = BOTTOMS.find(b => b.id === state.savedB.bottom)?.name;
+      document.getElementById('desc-compare-B').textContent = `${topB} + ${botB}`;
+      document.getElementById('meters-compare-B').innerHTML = renderMetersHTML(calculateEffects(state.avatar, state.savedB, state.goals), state.goals);
+    }
+
+    // 단계 6 코디 카드 미리보기
+    document.getElementById('avatar-stage-6').innerHTML = renderAvatarSVG(state.avatar, state.coordi);
+    document.getElementById('cardMetersBox').innerHTML = renderMetersHTML(eff, state.goals);
+    const goalNames = state.goals.map(gid => GOALS.find(g => g.id === gid)?.name).filter(Boolean);
+    document.getElementById('cardGoalBadges').innerHTML = goalNames.map(gn => `<span class="goal-badge" style="font-size:0.8rem; padding:4px 10px;">🎯 ${gn}</span>`).join(' ');
+    updateCardPreview();
+  }
+
+  /* ==============================
+     9. 코디 설명 자기점검 & PNG 저장
+  ============================== */
+  function updateCardPreview() {
+    const nameVal = document.getElementById('studentNameInput').value.trim();
+    const essayVal = document.getElementById('coordiEssayInput').value.trim();
+
+    document.getElementById('cardTitleName').textContent = nameVal ? `${nameVal}의 코디 카드` : '나의 스타일 코디 카드';
+    document.getElementById('cardEssayPreview').textContent = essayVal || '설명을 입력하면 이곳에 표시됩니다.';
+
+    // 디자인 요소 낱말 체크
+    const keywords = ['선', '색', '무늬', '재질', '실루엣', '줄무늬', '네크라인', 'V넥', '원톤', '대비', '밝은', '어두운'];
+    let matchedCount = 0;
+    ['선', '색', '무늬', '재질', '실루엣'].forEach(kw => {
+      if (essayVal.includes(kw)) matchedCount++;
+    });
+
+    const chkWords = document.getElementById('chkWords');
+    if (matchedCount >= 2) {
+      chkWords.className = 'check-item pass';
+      chkWords.textContent = `✔ 디자인 요소 낱말 ${matchedCount}개 포함 완료!`;
+    } else {
+      chkWords.className = 'check-item';
+      chkWords.textContent = `✖ 디자인 요소 낱말(선·색·무늬·재질·실루엣) 2개 이상 포함 (현재 ${matchedCount}개)`;
+    }
+
+    const chkLength = document.getElementById('chkLength');
+    if (essayVal.length >= 30) {
+      chkLength.className = 'check-item pass';
+      chkLength.textContent = `✔ 30자 이상 작성 완료! (현재 ${essayVal.length}자)`;
+    } else {
+      chkLength.className = 'check-item';
+      chkLength.textContent = `✖ 설명 글자 수 30자 이상 (현재 ${essayVal.length}자)`;
+    }
+  }
+
+  function downloadCardPNG() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 560;
+    const ctx = canvas.getContext('2d');
+
+    // 1. 카드 배경
+    ctx.fillStyle = '#FFF9F5';
+    ctx.fillRect(0, 0, 900, 560);
+    ctx.strokeStyle = '#FF7E67';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(12, 12, 876, 536);
+
+    // 2. 상단 제목 및 목표
+    const nameVal = document.getElementById('studentNameInput').value.trim() || '나';
+    ctx.fillStyle = '#FF7E67';
+    ctx.font = 'bold 16px "Noto Sans KR", sans-serif';
+    ctx.fillText('나를 살리는 코디 랩 REPORT CARD', 40, 52);
+
+    ctx.fillStyle = '#2D3436';
+    ctx.font = 'bold 28px "Jua", "Noto Sans KR", sans-serif';
+    ctx.fillText(`${nameVal}의 스타일 코디 카드`, 40, 88);
+
+    const goalNames = state.goals.map(gid => GOALS.find(g => g.id === gid)?.name).filter(Boolean).join(' · ');
+    ctx.fillStyle = '#1B8045';
+    ctx.font = 'bold 16px "Noto Sans KR", sans-serif';
+    ctx.fillText(`🎯 연출 목표: ${goalNames || '자유 연출'}`, 40, 118);
+
+    // 3. 오른쪽 효과 미터 및 설명 그리기
+    const eff = calculateEffects(state.avatar, state.coordi, state.goals);
+    const meters = [
+      { label: '세로로 길어 보임', val: eff.vertical },
+      { label: '어깨·상체 강조', val: eff.upper },
+      { label: '하체 강조', val: eff.lower },
+      { label: '얼굴 갸름해 보임', val: eff.slimFace }
+    ];
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(340, 135, 515, 210);
+    ctx.strokeStyle = '#EAE2DC';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(340, 135, 515, 210);
+
+    meters.forEach((m, idx) => {
+      const y = 168 + idx * 42;
+      ctx.fillStyle = '#2D3436';
+      ctx.font = 'bold 14px "Noto Sans KR", sans-serif';
+      ctx.fillText(`${m.label} (${m.val}%)`, 360, y);
+
+      ctx.fillStyle = '#E6E0DC';
+      ctx.fillRect(540, y - 12, 290, 14);
+      ctx.fillStyle = '#2ECC71';
+      ctx.fillRect(540, y - 12, Math.round(2.9 * m.val), 14);
+    });
+
+    ctx.fillStyle = '#5C7AEA';
+    ctx.font = 'bold 15px "Noto Sans KR", sans-serif';
+    ctx.fillText(`✨ 전체 인상 분위기: ${eff.dominantMood}`, 360, 330);
+
+    // 4. 코디 설명 텍스트 박스
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(340, 360, 515, 155);
+    ctx.strokeStyle = '#EAE2DC';
+    ctx.strokeRect(340, 360, 515, 155);
+
+    ctx.fillStyle = '#FF7E67';
+    ctx.font = 'bold 15px "Noto Sans KR", sans-serif';
+    ctx.fillText('💬 나의 코디 의도와 착시 효과 설명', 360, 390);
+
+    const essay = document.getElementById('coordiEssayInput').value.trim() || '옷의 선·색·실루엣 효과를 활용해 나만의 코디를 완성했어요!';
+    ctx.fillStyle = '#2D3436';
+    ctx.font = '15px "Noto Sans KR", sans-serif';
+    wrapText(ctx, essay, 360, 420, 475, 24);
+
+    // 5. 아바타 SVG를 이미지로 변환해 캔버스 왼쪽에 합성
+    const svgStr = renderAvatarSVG(state.avatar, state.coordi);
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(40, 135, 275, 380);
+      ctx.strokeStyle = '#E2D5CE';
+      ctx.strokeRect(40, 135, 275, 380);
+      ctx.drawImage(img, 48, 142, 260, 365);
+      URL.revokeObjectURL(url);
+
+      const a = document.createElement('a');
+      a.download = `나를살리는코디카드_${nameVal}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src = url;
+  }
+
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    let line = '';
+    for (let i = 0; i < text.length; i++) {
+      const testLine = line + text[i];
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && i > 0) {
+        ctx.fillText(line, x, y);
+        line = text[i];
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, y);
+  }
+
+  /* ==============================
+     10. 화면 전환 및 초기화
+  ============================== */
+  function goStep(stepNum) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + stepNum).classList.add('active');
+
+    const nav = document.getElementById('stepNav');
+    nav.style.display = stepNum === 1 ? 'none' : 'flex';
+
+    if (stepNum >= 2) {
+      const btns = nav.querySelectorAll('.step-btn');
+      btns.forEach((b, idx) => {
+        b.classList.toggle('active', idx === (stepNum - 2));
+      });
+    }
+    refreshAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetAll() {
+    if (!confirm('처음 화면으로 돌아가 새로운 코디 실험을 시작할까요?')) return;
+    document.getElementById('studentNameInput').value = '';
+    document.getElementById('coordiEssayInput').value = '';
+    goStep(1);
+  }
+
+  window.onload = initUI;
+</script>
+</body>
+</html>
